@@ -9,11 +9,36 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Tìm file .env.local bằng cách đi ngược lên các thư mục cha
+ */
+function findEnvLocal() {
+  const startPaths = [];
+  try {
+    startPaths.push(dirname(fileURLToPath(import.meta.url)));
+  } catch {}
+  startPaths.push(process.cwd());
+
+  for (const startPath of startPaths) {
+    let current = startPath;
+    for (let i = 0; i < 5; i++) {
+      const candidate = resolve(current, '.env.local');
+      if (existsSync(candidate)) {
+        return candidate;
+      }
+      const parent = dirname(current);
+      if (parent === current) break;
+      current = parent;
+    }
+  }
+  return null;
+}
 
 /**
  * Tự động load file .env.local ở root khi chạy local
@@ -24,7 +49,9 @@ function loadLocalEnv() {
     return;
   }
   try {
-    const envPath = resolve(process.cwd(), '.env.local');
+    const envPath = findEnvLocal();
+    if (!envPath) return;
+    
     const content = readFileSync(envPath, 'utf-8');
     for (const line of content.split('\n')) {
       const trimmed = line.trim();
