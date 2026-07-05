@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "devCommand": "vite --port $PORT",
   "builds": [
     {
       "src": "package.json",
