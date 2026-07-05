@@ -126,7 +126,7 @@ export default function App() {
 
       <footer className="app-footer">
         <div className="app-footer__content">
-          <p className="app-footer__copyright">© 2026 TaskFlow. Thiết kế bởi Nhóm SRT.</p>
+          <p className="app-footer__copyright">© 2026 TaskFlow. Thiết kế bởi Huy Ng.</p>
           <div className="app-footer__quote">
             <span className="quote-icon">“</span>
             <span className="quote-text">Kỷ luật là cầu nối giữa mục tiêu và thành tựu.</span>
