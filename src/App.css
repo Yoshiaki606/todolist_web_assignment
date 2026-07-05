@@ -1,30 +1,116 @@
 /* src/App.css */
 
-/* Import Inter font từ Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-:root {
-  font-family: 'Inter', system-ui, 'Segoe UI', sans-serif;
-}
-
 #app {
   width: 100%;
+  min-height: 100vh;
   min-height: 100svh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background gradient glows for glassmorphism */
+.background-glows {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.glow-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  transition: var(--transition-normal);
+}
+
+.glow-circle-1 {
+  width: 450px;
+  height: 450px;
+  top: -100px;
+  right: -50px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+}
+
+.glow-circle-2 {
+  width: 500px;
+  height: 500px;
+  bottom: -150px;
+  left: -100px;
+  background: radial-gradient(circle, hsl(200, 100%, 60%) 0%, transparent 70%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glow-circle {
+    opacity: 0.22;
+  }
 }
 
 .app-main {
   width: 100%;
-  max-width: 808px;   /* 760px content + 24px padding mỗi bên */
+  max-width: 808px; /* 760px content + 24px padding each side */
   margin: 0 auto;
-  padding: 40px 24px 80px;
-  box-sizing: border-box;
+  padding: 50px 24px 100px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 32px;
+  position: relative;
+}
+
+/* Header & Logo */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+}
+
+.app-logo {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent) 0%, hsl(200, 100%, 60%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  animation: logo-float 4s ease-in-out infinite;
+}
+
+.app-title-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+@keyframes logo-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
 }
 
 @media (max-width: 600px) {
   .app-main {
-    padding: 24px 16px 60px;
+    padding: 32px 16px 80px;
+    gap: 24px;
+  }
+  
+  .app-logo {
+    font-size: 20px;
   }
 }

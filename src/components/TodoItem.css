@@ -1,58 +1,101 @@
 /* src/components/TodoItem.css */
 
-/* ------------------------------------------------------------------ */
-/* Card container                                                       */
-/* ------------------------------------------------------------------ */
 .todo-item {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 20px 24px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  text-align: left;
-  position: relative;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-  animation: todo-slide-in 0.3s ease both;
+  gap: 12px;
+  padding: 24px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  animation: todo-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .todo-item:hover {
+  transform: translateY(-3px) scale(1.005);
+  box-shadow: var(--shadow-md);
   border-color: var(--accent-border);
-  box-shadow: var(--shadow);
-  transform: translateY(-2px);
 }
 
+/* Completed state adjustments */
 .todo-item--completed {
-  opacity: 0.65;
+  background: rgba(248, 250, 252, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  .todo-item--completed {
+    background: rgba(15, 23, 42, 0.25);
+  }
 }
 
 .todo-item--completed .todo-item__title {
   text-decoration: line-through;
   color: var(--text);
+  opacity: 0.65;
 }
 
-/* Edit mode — viền accent, không hover lift */
+.todo-item--completed .todo-item__description {
+  opacity: 0.5;
+}
+
+/* Edit mode card styling */
 .todo-item--editing {
   border-color: var(--accent-border);
-  box-shadow: 0 0 0 3px var(--accent-bg);
+  box-shadow: 0 0 0 4px var(--accent-glow);
   transform: none !important;
 }
 
-/* Confirm delete mode — viền đỏ nhẹ */
+/* Confirm delete mode card styling */
 .todo-item--confirming {
-  border-color: rgba(239, 68, 68, 0.4);
+  border-color: var(--danger-border);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
 }
 
-/* Toggling (đang chờ API phản hồi) — giảm opacity nhẹ, con trỏ wait */
+/* Toggling/loading card state */
 .todo-item--toggling {
-  opacity: 0.75;
-  pointer-events: none; /* block mọi click con trong lúc đang toggle */
+  opacity: 0.7;
+  pointer-events: none;
 }
 
-/* ------------------------------------------------------------------ */
-/* Checkbox toggle trạng thái                                          */
-/* ------------------------------------------------------------------ */
+/* Top row elements */
+.todo-item__top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Status indicator badge */
+.todo-item__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.todo-item__badge--pending {
+  background: var(--status-pending-bg);
+  color: var(--status-pending-text);
+  border: 1px solid var(--status-pending-border);
+}
+
+.todo-item__badge--completed {
+  background: var(--status-completed-bg);
+  color: var(--status-completed-text);
+  border: 1px solid var(--status-completed-border);
+}
+
+/* Checkbox container label */
 .todo-item__toggle {
   display: inline-flex;
   align-items: center;
@@ -62,7 +105,6 @@
   position: relative;
 }
 
-/* Ẩn native checkbox nhưng vẫn accessible */
 .todo-item__toggle-input {
   position: absolute;
   opacity: 0;
@@ -71,24 +113,24 @@
   pointer-events: none;
 }
 
-/* Custom checkbox visual */
+/* Custom checkbox graphic */
 .todo-item__toggle-custom {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
   border: 2px solid var(--border);
-  background: transparent;
-  transition: border-color 0.18s ease, background 0.18s ease, transform 0.15s ease;
+  background: var(--input-bg);
+  transition: all var(--transition-fast);
   position: relative;
 }
 
-/* Checkmark khi checked */
 .todo-item__toggle-input:checked + .todo-item__toggle-custom {
-  border-color: #059669;
-  background: #059669;
+  border-color: hsl(142, 70%, 45%);
+  background: hsl(142, 70%, 45%);
+  transform: scale(1.05);
 }
 
 .todo-item__toggle-input:checked + .todo-item__toggle-custom::after {
@@ -99,24 +141,24 @@
   border: 2px solid #fff;
   border-top: none;
   border-left: none;
-  transform: rotate(45deg) translateY(-1px);
+  transform: rotate(45deg) translate(-1px, -1px);
 }
 
-/* Hover (khi không đang toggle) */
+/* Hover checks styling */
 .todo-item__toggle:hover .todo-item__toggle-custom:not(.todo-item__toggle-custom--loading) {
   border-color: var(--accent-border);
   transform: scale(1.1);
 }
 
-/* Loading: vòng xoay nhỏ trong checkbox thay cho checkmark */
+/* Spinner during checklist status change */
 .todo-item__toggle-custom--loading {
   border-color: var(--accent-border) !important;
   background: transparent !important;
-  animation: checkbox-spin 0.7s linear infinite;
+  animation: checkbox-spin 0.6s linear infinite;
 }
 
 .todo-item__toggle-custom--loading::after {
-  content: none !important; /* ẩn checkmark khi loading */
+  content: none !important;
 }
 
 @keyframes checkbox-spin {
@@ -124,127 +166,85 @@
   to   { transform: rotate(360deg); }
 }
 
-/* ------------------------------------------------------------------ */
-/* Top row: badge + actions                                             */
-/* ------------------------------------------------------------------ */
-.todo-item__top-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-/* ------------------------------------------------------------------ */
-/* Status badge                                                         */
-/* ------------------------------------------------------------------ */
-.todo-item__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  padding: 3px 10px;
-  border-radius: 999px;
-  width: fit-content;
-}
-
-.todo-item__badge--pending {
-  background: rgba(245, 158, 11, 0.12);
-  color: #d97706;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-}
-
-.todo-item__badge--completed {
-  background: rgba(16, 185, 129, 0.12);
-  color: #059669;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-/* ------------------------------------------------------------------ */
-/* Action buttons (Sửa / Xóa icon)                                     */
-/* ------------------------------------------------------------------ */
+/* Action button items */
 .todo-item__actions {
   display: flex;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.18s ease;
+  gap: 6px;
+  opacity: 0.3;
+  transition: opacity var(--transition-fast);
 }
 
-/* Hiện khi hover card hoặc có focus bên trong */
 .todo-item:hover .todo-item__actions,
 .todo-item:focus-within .todo-item__actions {
   opacity: 1;
 }
 
-/* ------------------------------------------------------------------ */
-/* Button variants dùng chung                                          */
-/* ------------------------------------------------------------------ */
 .todo-item__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  border-radius: 7px;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: inherit;
+  gap: 6px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease, opacity 0.15s ease;
+  transition: all var(--transition-fast);
   line-height: 1;
 }
 
 .todo-item__btn:disabled {
-  opacity: 0.45;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Icon button (Sửa / Xóa nhỏ) */
+/* Icon Buttons (pencil & cross) */
 .todo-item__btn--icon {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 1px solid var(--border);
-  background: transparent;
+  background: var(--input-bg);
   color: var(--text);
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .todo-item__btn--icon:hover {
-  background: var(--accent-bg);
+  background: var(--accent-glow);
   border-color: var(--accent-border);
   color: var(--accent);
   transform: scale(1.08);
 }
 
 .todo-item__btn--icon-danger:hover {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.35);
-  color: #dc2626;
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
 }
 
-/* Primary (Lưu) */
+/* Action Primary (Save Edit) */
 .todo-item__btn--primary {
-  padding: 7px 16px;
+  padding: 8px 18px;
   border: none;
   background: var(--accent);
   color: #fff;
-  min-width: 72px;
+  min-width: 76px;
+  box-shadow: 0 2px 8px var(--accent-glow);
 }
 
 .todo-item__btn--primary:hover:not(:disabled) {
-  filter: brightness(1.12);
+  background: var(--accent-hover);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--accent-glow);
 }
 
 .todo-item__btn--primary:active:not(:disabled) {
+  background: var(--accent-active);
   transform: translateY(0);
 }
 
-/* Ghost (Hủy) */
+/* Ghost Buttons (Cancel) */
 .todo-item__btn--ghost {
-  padding: 7px 16px;
+  padding: 8px 18px;
   border: 1px solid var(--border);
   background: transparent;
   color: var(--text);
@@ -255,117 +255,118 @@
   color: var(--text-h);
 }
 
-/* Danger (Xóa xác nhận) */
+/* Danger confirmation buttons */
 .todo-item__btn--danger {
-  padding: 7px 16px;
+  padding: 8px 18px;
   border: none;
-  background: #ef4444;
+  background: var(--danger-text);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
 }
 
 .todo-item__btn--danger:hover {
-  background: #dc2626;
+  background: hsl(350, 89%, 46%);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
 }
 
-/* ------------------------------------------------------------------ */
-/* Body                                                                 */
-/* ------------------------------------------------------------------ */
+/* Body content area */
 .todo-item__body {
   flex: 1;
 }
 
 .todo-item__title {
-  font-size: 17px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--text-h);
-  margin: 0 0 6px;
+  margin: 0 0 6px 0;
   line-height: 1.4;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.015em;
+  transition: color var(--transition-fast);
 }
 
 .todo-item__description {
-  font-size: 14px;
+  font-size: 14.5px;
   color: var(--text);
   line-height: 1.6;
   margin: 0;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
-/* ------------------------------------------------------------------ */
-/* Footer                                                               */
-/* ------------------------------------------------------------------ */
+/* Footer card details */
 .todo-item__footer {
   border-top: 1px solid var(--border);
-  padding-top: 10px;
-  margin-top: 4px;
+  padding-top: 12px;
+  margin-top: 6px;
 }
 
 .todo-item__date {
   font-size: 12px;
+  font-weight: 500;
   color: var(--text);
-  opacity: 0.7;
+  opacity: 0.65;
 }
 
-/* ------------------------------------------------------------------ */
-/* Edit mode form fields                                                */
-/* ------------------------------------------------------------------ */
+/* Edit Mode Layouts */
 .todo-item__edit-field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 .todo-item__edit-label {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 12.5px;
+  font-weight: 600;
   color: var(--text-h);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .todo-item__edit-optional {
   font-size: 11px;
-  font-weight: 400;
-  color: var(--text);
-  opacity: 0.65;
+  font-weight: 500;
+  opacity: 0.6;
+  text-transform: lowercase;
 }
 
 .todo-item__edit-input,
 .todo-item__edit-textarea {
   width: 100%;
-  box-sizing: border-box;
-  padding: 8px 12px;
-  border-radius: 7px;
+  padding: 10px 14px;
+  border-radius: var(--border-radius-sm);
   border: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--input-bg);
   color: var(--text-h);
-  font-size: 14px;
-  font-family: inherit;
+  font-size: 14.5px;
   line-height: 1.5;
   outline: none;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  transition: all var(--transition-fast);
   resize: vertical;
 }
 
 .todo-item__edit-input:focus,
 .todo-item__edit-textarea:focus {
   border-color: var(--accent-border);
-  box-shadow: 0 0 0 3px var(--accent-bg);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  background: var(--bg);
 }
 
 .todo-item__edit-input--error {
-  border-color: rgba(239, 68, 68, 0.6);
+  border-color: var(--danger-border);
 }
 
 .todo-item__edit-hint {
   font-size: 11px;
+  font-weight: 500;
   color: var(--text);
   opacity: 0.6;
-  margin: 0;
   text-align: right;
 }
 
 .todo-item__edit-hint--error {
-  color: #dc2626;
+  color: var(--danger-text);
   opacity: 1;
   text-align: left;
 }
@@ -373,23 +374,23 @@
 .todo-item__edit-actions {
   display: flex;
   gap: 8px;
-  margin-top: 4px;
+  margin-top: 16px;
 }
 
-/* ------------------------------------------------------------------ */
-/* Confirm delete dialog                                                */
-/* ------------------------------------------------------------------ */
+/* Delete confirmation panel */
 .todo-item__confirm {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 14px 0 4px;
+  padding: 12px 0 4px 0;
+  border-top: 1px dashed var(--border);
+  margin-top: 8px;
 }
 
 .todo-item__confirm-text {
-  font-size: 14px;
-  color: var(--text);
-  margin: 0;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text-h);
 }
 
 .todo-item__confirm-actions {
@@ -397,17 +398,17 @@
   gap: 8px;
 }
 
-/* ------------------------------------------------------------------ */
-/* Inline error banner                                                  */
-/* ------------------------------------------------------------------ */
+/* Inline card error banners */
 .todo-item__inline-error {
   font-size: 13px;
-  color: #dc2626;
-  background: rgba(239, 68, 68, 0.07);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 7px;
-  padding: 7px 12px;
+  font-weight: 500;
+  color: var(--danger-text);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  border-radius: var(--border-radius-sm);
+  padding: 8px 12px;
   line-height: 1.5;
+  margin-bottom: 8px;
   animation: fade-in-down 0.2s ease;
 }
 
@@ -416,39 +417,56 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ------------------------------------------------------------------ */
-/* Spinner (bên trong nút Lưu)                                         */
-/* ------------------------------------------------------------------ */
+/* Action Spinners */
 .todo-item__spinner {
   display: inline-block;
-  width: 12px;
-  height: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fff;
   border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+  animation: spin 0.6s linear infinite;
+  margin-right: 4px;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* ------------------------------------------------------------------ */
-/* Animation                                                            */
-/* ------------------------------------------------------------------ */
+/* Entry slide-in */
 @keyframes todo-slide-in {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Stagger animation */
-.todo-item:nth-child(1)  { animation-delay: 0.04s; }
-.todo-item:nth-child(2)  { animation-delay: 0.08s; }
-.todo-item:nth-child(3)  { animation-delay: 0.12s; }
-.todo-item:nth-child(4)  { animation-delay: 0.16s; }
-.todo-item:nth-child(5)  { animation-delay: 0.20s; }
-.todo-item:nth-child(6)  { animation-delay: 0.24s; }
-.todo-item:nth-child(7)  { animation-delay: 0.28s; }
-.todo-item:nth-child(8)  { animation-delay: 0.32s; }
-.todo-item:nth-child(9)  { animation-delay: 0.36s; }
-.todo-item:nth-child(10) { animation-delay: 0.40s; }
+/* Card staggered entry delays */
+.todo-item:nth-child(1)  { animation-delay: 0.03s; }
+.todo-item:nth-child(2)  { animation-delay: 0.06s; }
+.todo-item:nth-child(3)  { animation-delay: 0.09s; }
+.todo-item:nth-child(4)  { animation-delay: 0.12s; }
+.todo-item:nth-child(5)  { animation-delay: 0.15s; }
+.todo-item:nth-child(6)  { animation-delay: 0.18s; }
+.todo-item:nth-child(7)  { animation-delay: 0.21s; }
+.todo-item:nth-child(8)  { animation-delay: 0.24s; }
+.todo-item:nth-child(9)  { animation-delay: 0.27s; }
+.todo-item:nth-child(10) { animation-delay: 0.30s; }
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .todo-item {
+    padding: 18px 20px;
+    gap: 10px;
+  }
+  
+  .todo-item__actions {
+    opacity: 1; /* Always visible on touch screens */
+  }
+
+  .todo-item__title {
+    font-size: 16.5px;
+  }
+  
+  .todo-item__description {
+    font-size: 13.5px;
+  }
+}

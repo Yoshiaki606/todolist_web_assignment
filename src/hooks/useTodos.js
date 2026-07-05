@@ -5,7 +5,7 @@
  * Giao tiếp với GET, POST, PATCH, DELETE /api/todos.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 /**
  * @typedef {Object} Todo

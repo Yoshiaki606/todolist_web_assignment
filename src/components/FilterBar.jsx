@@ -21,15 +21,34 @@ const STATUS_TABS = [
   { value: 'completed', label: 'Hoàn thành'  },
 ];
 
+const SORT_OPTIONS = [
+  { value: 'created_at:desc', label: 'Mới nhất' },
+  { value: 'created_at:asc',  label: 'Cũ nhất' },
+  { value: 'title:asc',       label: 'Tiêu đề (A-Z)' },
+  { value: 'title:desc',      label: 'Tiêu đề (Z-A)' },
+  { value: 'updated_at:desc', label: 'Cập nhật gần đây' },
+  { value: 'status:asc',      label: 'Đang chờ trước' },
+  { value: 'status:desc',     label: 'Hoàn thành trước' },
+];
+
 export default function FilterBar({
   activeStatus,
   keyword,
   onStatusChange,
   onKeywordChange,
+  sortBy,
+  sortOrder,
+  onSortChange,
   total,
   loading,
 }) {
   const hasFilters = activeStatus !== 'all' || keyword.trim().length > 0;
+  const activeSortValue = `${sortBy}:${sortOrder}`;
+
+  const handleSortSelect = (e) => {
+    const [newSortBy, newSortOrder] = e.target.value.split(':');
+    onSortChange(newSortBy, newSortOrder);
+  };
 
   return (
     <div className="filter-bar">
@@ -97,14 +116,34 @@ export default function FilterBar({
           ))}
         </div>
 
-        {/* Kết quả đếm — chỉ hiện khi không đang load */}
-        {!loading && (
-          <span className="filter-bar__result-count">
-            {hasFilters
-              ? `${total} kết quả`
-              : `${total} công việc`}
-          </span>
-        )}
+        <div className="filter-bar__actions-wrapper">
+          {/* Sắp xếp dropdown */}
+          <div className="filter-bar__sort-container">
+            <span className="filter-bar__sort-icon" aria-hidden="true">⇅</span>
+            <select
+              id="filter-sort-select"
+              className="filter-bar__sort-select"
+              value={activeSortValue}
+              onChange={handleSortSelect}
+              aria-label="Sắp xếp công việc"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Kết quả đếm — chỉ hiện khi không đang load */}
+          {!loading && (
+            <span className="filter-bar__result-count">
+              {hasFilters
+                ? `${total} kết quả`
+                : `${total} công việc`}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

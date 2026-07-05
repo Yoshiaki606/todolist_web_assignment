@@ -62,16 +62,27 @@ async function handleGet(req, res) {
   const supabase = getSupabaseClient();
   console.log(`[API handleGet] Supabase client obtained`);
   
-  const { status, keyword } = req.query;
+  const { status, keyword, sortBy, sortOrder } = req.query;
   const { limit, offset }   = parsePagination(req.query);
 
+  // Validate and resolve sorting parameters
+  let activeSortBy = 'created_at';
+  let activeSortOrder = 'desc';
+  const allowedSortBy = ['created_at', 'title', 'status', 'updated_at'];
+  const allowedSortOrder = ['asc', 'desc'];
+
+  if (sortBy && allowedSortBy.includes(sortBy)) {
+    activeSortBy = sortBy;
+  }
+  if (sortOrder && allowedSortOrder.includes(sortOrder)) {
+    activeSortOrder = sortOrder;
+  }
+
   // Bắt đầu xây query — select all, đếm tổng để trả về total
-  console.log(`[API handleGet] Preparing query with status=${status}, keyword=${keyword}`);
+  console.log(`[API handleGet] Preparing query with status=${status}, keyword=${keyword}, sortBy=${activeSortBy}, sortOrder=${activeSortOrder}`);
   let query = supabase
     .from('todos')
-    .select('*', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1);
+    .select('*', { count: 'exact' });
 
   // Lọc theo status nếu có và hợp lệ
   if (status) {
@@ -87,6 +98,13 @@ async function handleGet(req, res) {
   if (keyword && keyword.trim()) {
     query = query.ilike('title', `%${keyword.trim()}%`);
   }
+
+  // Sắp xếp và phân trang
+  query = query
+    .order(activeSortBy, { ascending: activeSortOrder === 'asc' })
+    // Secondary sort to ensure consistent order
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
 
   const { data, error, count } = await query;
 

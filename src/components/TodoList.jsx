@@ -72,7 +72,26 @@ function EmptyState({ hasActiveFilters }) {
 /* ------------------------------------------------------------------ */
 /* Main component                                                       */
 /* ------------------------------------------------------------------ */
-export default function TodoList({ todos, total, loading, error, onRetry, onUpdate, onDelete, hasActiveFilters }) {
+export default function TodoList({
+  todos,
+  total,
+  loading,
+  error,
+  onRetry,
+  onUpdate,
+  onDelete,
+  hasActiveFilters,
+  page,
+  limit,
+  onPageChange,
+}) {
+  const totalPages = Math.ceil(total / limit);
+
+  // Tạo mảng danh sách trang
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
 
   return (
     <section className="todo-list" aria-label="Danh sách công việc">
@@ -112,6 +131,41 @@ export default function TodoList({ todos, total, loading, error, onRetry, onUpda
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Phân trang */}
+      {!loading && !error && totalPages > 1 && (
+        <nav className="todo-list__pagination" aria-label="Phân trang danh sách công việc">
+          <button
+            className="todo-list__page-btn todo-list__page-btn--nav"
+            onClick={() => onPageChange(page - 1)}
+            disabled={page === 1}
+            aria-label="Trang trước"
+          >
+            ‹
+          </button>
+          
+          {pageNumbers.map((num) => (
+            <button
+              key={num}
+              className={`todo-list__page-btn ${page === num ? 'todo-list__page-btn--active' : ''}`}
+              onClick={() => onPageChange(num)}
+              aria-label={`Trang ${num}`}
+              aria-current={page === num ? 'page' : undefined}
+            >
+              {num}
+            </button>
+          ))}
+
+          <button
+            className="todo-list__page-btn todo-list__page-btn--nav"
+            onClick={() => onPageChange(page + 1)}
+            disabled={page === totalPages}
+            aria-label="Trang sau"
+          >
+            ›
+          </button>
+        </nav>
       )}
     </section>
   );
