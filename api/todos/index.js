@@ -19,6 +19,7 @@
  */
 
 import { getSupabaseClient } from '../_supabaseClient.js';
+import { validateDueAt } from '../_validators.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -121,7 +122,7 @@ async function handleGet(req, res) {
 // ---------------------------------------------------------------------------
 
 async function handlePost(req, res) {
-  const { title, description } = req.body ?? {};
+  const { title, description, due_at } = req.body ?? {};
 
   // --- Validation ---
 
@@ -142,6 +143,12 @@ async function handlePost(req, res) {
     return sendJSON(res, 400, { error: "'description' phải là chuỗi ký tự." });
   }
 
+  // due_at phải hợp lệ nếu có
+  const dueAtValidation = validateDueAt(due_at);
+  if (!dueAtValidation.valid) {
+    return sendJSON(res, 400, { error: dueAtValidation.error });
+  }
+
   // --- Insert vào Supabase ---
   const supabase = getSupabaseClient();
 
@@ -151,6 +158,7 @@ async function handlePost(req, res) {
       {
         title:       title.trim(),
         description: description?.trim() ?? null,
+        due_at:      due_at && due_at.trim() !== '' ? due_at : null,
         // status mặc định 'pending' đã được set ở DB level
       },
     ])

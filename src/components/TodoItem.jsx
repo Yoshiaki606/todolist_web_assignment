@@ -30,6 +30,14 @@ function formatDate(isoString) {
   });
 }
 
+/** Format ISO timestamp → YYYY-MM-DDTHH:mm cho datetime-local input */
+function formatDateTimeLocal(isoString) {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  const tzoffset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - tzoffset).toISOString().slice(0, 16);
+}
+
 /* ------------------------------------------------------------------ */
 /* Confirm modal đơn giản — không dùng window.confirm                  */
 /* ------------------------------------------------------------------ */
@@ -63,6 +71,7 @@ function ConfirmDialog({ onConfirm, onCancel }) {
 /* ------------------------------------------------------------------ */
 export default function TodoItem({ todo, onUpdate, onDelete }) {
   const isCompleted = todo.status === 'completed';
+  const isOverdue = !isCompleted && todo.due_at && new Date(todo.due_at) < new Date();
 
   // --- UI state ---
   const [mode, setMode] = useState('view'); // 'view' | 'edit' | 'confirm-delete'
@@ -73,6 +82,7 @@ export default function TodoItem({ todo, onUpdate, onDelete }) {
   // --- Edit form state ---
   const [editTitle, setEditTitle]           = useState(todo.title);
   const [editDescription, setEditDescription] = useState(todo.description ?? '');
+  const [editDueAt, setEditDueAt]           = useState(formatDateTimeLocal(todo.due_at));
   const [saving, setSaving]                 = useState(false);
   const [itemError, setItemError]           = useState(null);
 
@@ -86,7 +96,8 @@ export default function TodoItem({ todo, onUpdate, onDelete }) {
   useEffect(() => {
     setEditTitle(todo.title);
     setEditDescription(todo.description ?? '');
-  }, [todo.title, todo.description]);
+    setEditDueAt(formatDateTimeLocal(todo.due_at));
+  }, [todo.title, todo.description, todo.due_at]);
 
   // --- Validation ---
   const trimmedTitle   = editTitle.trim();
@@ -131,6 +142,7 @@ export default function TodoItem({ todo, onUpdate, onDelete }) {
     // Reset về giá trị gốc
     setEditTitle(todo.title);
     setEditDescription(todo.description ?? '');
+    setEditDueAt(formatDateTimeLocal(todo.due_at));
     setItemError(null);
     setMode('view');
   }
@@ -144,6 +156,7 @@ export default function TodoItem({ todo, onUpdate, onDelete }) {
       await onUpdate(todo.id, {
         title:       trimmedTitle,
         description: editDescription.trim() || null,
+        due_at:      editDueAt || null,
       });
       setMode('view');
     } catch (err) {
@@ -230,6 +243,21 @@ export default function TodoItem({ todo, onUpdate, onDelete }) {
           />
         </div>
 
+        {/* Due Date input */}
+        <div className="todo-item__edit-field">
+          <label htmlFor={`edit-due-${todo.id}`} className="todo-item__edit-label">
+            Hạn hoàn thành <span className="todo-item__edit-optional">(tùy chọn)</span>
+          </label>
+          <input
+            id={`edit-due-${todo.id}`}
+            type="datetime-local"
+            className="todo-item__edit-input"
+            value={editDueAt}
+            onChange={(e) => setEditDueAt(e.target.value)}
+            disabled={saving}
+          />
+        </div>
+
         {/* Edit actions */}
         <div className="todo-item__edit-actions">
           <button
@@ -303,8 +331,8 @@ export default function TodoItem({ todo, onUpdate, onDelete }) {
           />
         </label>
 
-        <span className={`todo-item__badge todo-item__badge--${todo.status}`}>
-          {isCompleted ? '✓ Hoàn thành' : '○ Đang chờ'}
+        <span className={`todo-item__badge todo-item__badge--${isOverdue ? 'overdue' : todo.status}`}>
+          {isCompleted ? '✓ Hoàn thành' : isOverdue ? '⚠ Trễ hạn' : '○ Đang chờ'}
         </span>
 
         <div className="todo-item__actions">
@@ -341,6 +369,16 @@ export default function TodoItem({ todo, onUpdate, onDelete }) {
         <h2 className="todo-item__title">{todo.title}</h2>
         {todo.description && (
           <p className="todo-item__description">{todo.description}</p>
+        )}
+        
+        {todo.due_at && (
+          <div className={`todo-item__due-date ${isOverdue ? 'todo-item__due-date--overdue' : ''}`}>
+            <span className="todo-item__due-icon" aria-hidden="true">📅</span>
+            <span>Hạn chót: {formatDate(todo.due_at)}</span>
+            {isOverdue && (
+              <span className="todo-item__due-warning"> (Trễ hạn)</span>
+            )}
+          </div>
         )}
       </div>
 

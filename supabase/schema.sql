@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS todos (
   status        TEXT        NOT NULL DEFAULT 'pending'
                             CHECK (status IN ('pending', 'completed')),
 
+  -- Hạn hoàn thành (tùy chọn)
+  due_at        TIMESTAMPTZ,
+
   -- Timestamp: tự động ghi nhận thời điểm tạo và cập nhật
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()

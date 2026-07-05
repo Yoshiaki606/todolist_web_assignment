@@ -75,3 +75,26 @@ export function validateDescription(description) {
   }
   return { valid: true };
 }
+
+/**
+ * Validate field `due_at` nếu có:
+ *   - Phải là chuỗi định dạng ISO date hợp lệ (hoặc null/undefined)
+ *
+ * @param {unknown} dueAt
+ * @returns {{ valid: true } | { valid: false, error: string }}
+ */
+export function validateDueAt(dueAt) {
+  if (dueAt !== undefined && dueAt !== null) {
+    if (typeof dueAt !== 'string') {
+      return { valid: false, error: "'due_at' phải là chuỗi định dạng ngày tháng hợp lệ." };
+    }
+    if (dueAt.trim() === '') {
+      return { valid: true }; // allow blanking out due_at
+    }
+    const timestamp = Date.parse(dueAt);
+    if (isNaN(timestamp)) {
+      return { valid: false, error: "'due_at' không đúng định dạng ngày tháng." };
+    }
+  }
+  return { valid: true };
+}

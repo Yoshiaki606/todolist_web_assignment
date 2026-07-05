@@ -470,3 +470,42 @@
     font-size: 13.5px;
   }
 }
+
+/* Custom styles for due date & overdue tasks */
+.todo-item__due-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 13.5px;
+  color: var(--text);
+  font-weight: 500;
+  padding: 4px 10px;
+  background: var(--border);
+  border-radius: 6px;
+  opacity: 0.9;
+  transition: all var(--transition-fast);
+}
+
+.todo-item__due-icon {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.todo-item__due-date--overdue {
+  color: var(--danger-text);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.08);
+}
+
+.todo-item__due-warning {
+  font-weight: 700;
+}
+
+.todo-item__badge--overdue {
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
+}

@@ -16,6 +16,7 @@ const MAX_TITLE_LEN = 200; // khớp với rule validate phía server
 export default function TodoForm({ addTodo }) {
   const [title, setTitle]           = useState('');
   const [description, setDescription] = useState('');
+  const [dueAt, setDueAt]           = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError]     = useState(null);
 
@@ -37,11 +38,13 @@ export default function TodoForm({ addTodo }) {
       await addTodo({
         title:       title.trim(),
         description: description.trim() || undefined,
+        due_at:      dueAt || undefined,
       });
 
       // Thành công — reset form
       setTitle('');
       setDescription('');
+      setDueAt('');
     } catch (err) {
       // Lỗi từ API (400 / 500) hoặc lỗi mạng
       setApiError(err.message || 'Đã xảy ra lỗi, vui lòng thử lại.');
@@ -129,6 +132,21 @@ export default function TodoForm({ addTodo }) {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Ghi chú thêm về công việc này..."
           rows={3}
+          disabled={submitting}
+        />
+      </div>
+
+      {/* Field: Due Date */}
+      <div className="todo-form__field">
+        <label htmlFor="todo-due-at" className="todo-form__label">
+          Hạn hoàn thành <span className="todo-form__optional">(tùy chọn)</span>
+        </label>
+        <input
+          id="todo-due-at"
+          type="datetime-local"
+          className="todo-form__input"
+          value={dueAt}
+          onChange={(e) => setDueAt(e.target.value)}
           disabled={submitting}
         />
       </div>

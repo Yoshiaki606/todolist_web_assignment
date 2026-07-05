@@ -17,6 +17,7 @@ import {
   validateTitle,
   validateStatus,
   validateDescription,
+  validateDueAt,
 } from '../_validators.js';
 
 // ---------------------------------------------------------------------------
@@ -56,16 +57,17 @@ async function findTodoById(supabase, id) {
 // ---------------------------------------------------------------------------
 
 async function handleUpdate(req, res, id) {
-  const { title, description, status } = req.body ?? {};
+  const { title, description, status, due_at } = req.body ?? {};
 
   // Phải có ít nhất một field để update
   const hasTitle       = title       !== undefined;
   const hasDescription = description !== undefined;
   const hasStatus      = status      !== undefined;
+  const hasDueAt       = due_at      !== undefined;
 
-  if (!hasTitle && !hasDescription && !hasStatus) {
+  if (!hasTitle && !hasDescription && !hasStatus && !hasDueAt) {
     return sendJSON(res, 400, {
-      error: 'Body phải chứa ít nhất một trong các trường: title, description, status.',
+      error: 'Body phải chứa ít nhất một trong các trường: title, description, status, due_at.',
     });
   }
 
@@ -86,6 +88,11 @@ async function handleUpdate(req, res, id) {
     if (!result.valid) return sendJSON(res, 400, { error: result.error });
   }
 
+  if (hasDueAt) {
+    const result = validateDueAt(due_at);
+    if (!result.valid) return sendJSON(res, 400, { error: result.error });
+  }
+
   // --- Kiểm tra record tồn tại ---
   const supabase = getSupabaseClient();
   const { todo, notFound, dbError: findError } = await findTodoById(supabase, id);
@@ -103,6 +110,7 @@ async function handleUpdate(req, res, id) {
   if (hasTitle)       updates.title       = title.trim();
   if (hasDescription) updates.description = typeof description === 'string' ? description.trim() || null : null;
   if (hasStatus)      updates.status      = status;
+  if (hasDueAt)       updates.due_at      = due_at && due_at.trim() !== '' ? due_at : null;
   // updated_at được xử lý tự động bởi trigger DB
 
   // --- Thực hiện update ---

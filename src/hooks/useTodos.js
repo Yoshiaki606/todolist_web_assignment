@@ -102,11 +102,11 @@ export function useTodos() {
    * @param {{ title: string, description?: string }} payload
    * @returns {Promise<Todo>} Todo vừa được tạo
    */
-  const addTodo = useCallback(async ({ title, description }) => {
+  const addTodo = useCallback(async ({ title, description, due_at }) => {
     const response = await fetch('/api/todos', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ title, description }),
+      body:    JSON.stringify({ title, description, due_at }),
     });
 
     if (!response.ok) {
