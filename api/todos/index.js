@@ -58,11 +58,15 @@ function parsePagination(query) {
 // ---------------------------------------------------------------------------
 
 async function handleGet(req, res) {
+  console.log(`[API handleGet] Getting supabase client`);
   const supabase = getSupabaseClient();
+  console.log(`[API handleGet] Supabase client obtained`);
+  
   const { status, keyword } = req.query;
   const { limit, offset }   = parsePagination(req.query);
 
   // Bắt đầu xây query — select all, đếm tổng để trả về total
+  console.log(`[API handleGet] Preparing query with status=${status}, keyword=${keyword}`);
   let query = supabase
     .from('todos')
     .select('*', { count: 'exact' })
@@ -148,13 +152,16 @@ async function handlePost(req, res) {
 // ---------------------------------------------------------------------------
 
 export default async function handler(req, res) {
+  console.log(`[API] Received request: ${req.method} ${req.url}`);
   try {
     // Chỉ cho phép GET và POST
     if (req.method === 'GET') {
+      console.log(`[API] Routing to handleGet`);
       return await handleGet(req, res);
     }
 
     if (req.method === 'POST') {
+      console.log(`[API] Routing to handlePost`);
       return await handlePost(req, res);
     }
 

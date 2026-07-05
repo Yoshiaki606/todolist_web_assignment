@@ -24,12 +24,15 @@ function findEnvLocal() {
     startPaths.push(dirname(fileURLToPath(import.meta.url)));
   } catch {}
   startPaths.push(process.cwd());
+  console.log(`[SupabaseClient] findEnvLocal startPaths:`, startPaths);
 
   for (const startPath of startPaths) {
     let current = startPath;
     for (let i = 0; i < 5; i++) {
       const candidate = resolve(current, '.env.local');
+      console.log(`[SupabaseClient] Checking candidate path: ${candidate}`);
       if (existsSync(candidate)) {
+        console.log(`[SupabaseClient] Found .env.local at: ${candidate}`);
         return candidate;
       }
       const parent = dirname(current);
@@ -37,6 +40,7 @@ function findEnvLocal() {
       current = parent;
     }
   }
+  console.warn(`[SupabaseClient] .env.local not found in starting paths`);
   return null;
 }
 
@@ -46,8 +50,10 @@ function findEnvLocal() {
  */
 function loadLocalEnv() {
   if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.log(`[SupabaseClient] Env vars already present`);
     return;
   }
+  console.log(`[SupabaseClient] Loading local env vars...`);
   try {
     const envPath = findEnvLocal();
     if (!envPath) return;
@@ -64,8 +70,9 @@ function loadLocalEnv() {
         process.env[key] = value;
       }
     }
+    console.log(`[SupabaseClient] env.local loaded successfully`);
   } catch (err) {
-    // Bỏ qua lỗi nếu không tìm thấy file (khi chạy trên production Vercel)
+    console.error(`[SupabaseClient] Error loading env.local:`, err);
   }
 }
 
@@ -77,9 +84,11 @@ function loadLocalEnv() {
  * @throws {Error} Nếu biến môi trường chưa được cấu hình
  */
 export function getSupabaseClient() {
+  console.log(`[SupabaseClient] getSupabaseClient called`);
   loadLocalEnv();
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  console.log(`[SupabaseClient] URL present: ${!!supabaseUrl}, Key present: ${!!supabaseServiceRoleKey}`);
 
   if (!supabaseUrl) {
     throw new Error(
