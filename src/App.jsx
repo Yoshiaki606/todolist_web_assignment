@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useTasks }   from './hooks/useTasks.js';
+import { useTasks } from './hooks/useTasks.js';
 import FilterBar from './components/FilterBar.jsx';
-import TaskForm  from './components/TaskForm.jsx';
-import TaskList  from './components/TaskList.jsx';
+import TaskForm from './components/TaskForm.jsx';
+import TaskList from './components/TaskList.jsx';
 import './App.css';
 
 const DEBOUNCE_MS = 300;
@@ -12,10 +12,10 @@ export default function App() {
 
   // --- Filter and Pagination state ---
   const [activeStatus, setActiveStatus] = useState('all');
-  const [keyword, setKeyword]           = useState('');
-  const [page, setPage]                 = useState(1);
-  const [sortBy, setSortBy]             = useState('created_at');
-  const [sortOrder, setSortOrder]       = useState('desc');
+  const [keyword, setKeyword] = useState('');
+  const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('desc');
   const limit = 3;
 
   const hasActiveFilters = activeStatus !== 'all' || keyword.trim().length > 0;
@@ -43,7 +43,7 @@ export default function App() {
    */
   useEffect(() => {
     const params = { page, limit, sortBy, sortOrder };
-    if (activeStatus !== 'all')    params.status  = activeStatus;
+    if (activeStatus !== 'all') params.status = activeStatus;
     if (keyword.trim().length > 0) params.keyword = keyword.trim();
 
     // status, page, sorting change không cần delay, keyword cần debounce
@@ -54,13 +54,13 @@ export default function App() {
     }, delay);
 
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeStatus, keyword, page, limit, sortBy, sortOrder]);
 
   const completedCount = todos.filter(t => t.status === 'completed').length;
   const pageTotal = todos.length;
   const percent = pageTotal > 0 ? Math.round((completedCount / pageTotal) * 100) : 0;
-  
+
   const todayStr = new Date().toLocaleDateString('vi-VN', {
     weekday: 'long',
     year: 'numeric',
@@ -74,7 +74,7 @@ export default function App() {
         <div className="glow-circle glow-circle-1"></div>
         <div className="glow-circle glow-circle-2"></div>
       </div>
-      
+
       <main className="app-main">
         <header className="app-header">
           <div className="app-header__branding">
@@ -85,7 +85,6 @@ export default function App() {
             <time className="app-header__date">{todayStr}</time>
             {pageTotal > 0 && (
               <div className="app-header__stats">
-                <span className="app-header__stats-text">Trang này: {percent}% hoàn thành ({completedCount}/{pageTotal})</span>
                 <div className="app-header__progress-bar">
                   <div className="app-header__progress-fill" style={{ width: `${percent}%` }}></div>
                 </div>
