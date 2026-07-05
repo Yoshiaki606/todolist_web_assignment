@@ -31,3 +31,6 @@ dist-ssr
 
 # Thư mục nội bộ IDE / tooling
 skills/
+
+.vercel
+.env*

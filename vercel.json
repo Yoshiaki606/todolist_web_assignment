@@ -3,7 +3,7 @@
   "devCommand": "vite --port $PORT",
   "rewrites": [
     {
-      "source": "/((?!api/|.*\\.[a-zA-Z0-9]+$).*)",
+      "source": "/((?!api/|node_modules/|src/|@vite/|@react-refresh|@fs/|@id/|.*\\.[a-zA-Z0-9]+$).*)",
       "destination": "/index.html"
     }
   ]
