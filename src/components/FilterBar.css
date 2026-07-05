@@ -1,0 +1,180 @@
+/* src/components/FilterBar.css */
+
+/* ------------------------------------------------------------------ */
+/* Container                                                            */
+/* ------------------------------------------------------------------ */
+.filter-bar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Search input wrapper                                                 */
+/* ------------------------------------------------------------------ */
+.filter-bar__search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.filter-bar__search-icon {
+  position: absolute;
+  left: 13px;
+  color: var(--text);
+  opacity: 0.5;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.filter-bar__search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 42px 10px 38px; /* left: icon, right: clear btn */
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+
+  /* Reset browser default search input styling */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Hide native clear button added by some browsers */
+.filter-bar__search-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.filter-bar__search-input:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.filter-bar__search-input::placeholder {
+  color: var(--text);
+  opacity: 0.4;
+}
+
+/* Clear button */
+.filter-bar__clear-btn {
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  opacity: 0.5;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.filter-bar__clear-btn:hover {
+  opacity: 1;
+  background: var(--border);
+}
+
+/* Loading dot (spins while fetching) */
+.filter-bar__loading-dot {
+  position: absolute;
+  right: 12px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: filter-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes filter-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Bottom row: tabs + result count                                      */
+/* ------------------------------------------------------------------ */
+.filter-bar__bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Status tabs                                                          */
+/* ------------------------------------------------------------------ */
+.filter-bar__tabs {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--border);
+  border-radius: 9px;
+}
+
+.filter-bar__tab {
+  padding: 5px 14px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.filter-bar__tab:hover:not(.filter-bar__tab--active) {
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  color: var(--text-h);
+}
+
+.filter-bar__tab--active {
+  background: var(--bg);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* ------------------------------------------------------------------ */
+/* Result count                                                         */
+/* ------------------------------------------------------------------ */
+.filter-bar__result-count {
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0.65;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                           */
+/* ------------------------------------------------------------------ */
+@media (max-width: 480px) {
+  .filter-bar__bottom-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .filter-bar__tab {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+}

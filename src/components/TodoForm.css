@@ -1,0 +1,237 @@
+/* src/components/TodoForm.css */
+
+/* ------------------------------------------------------------------ */
+/* Form container                                                       */
+/* ------------------------------------------------------------------ */
+.todo-form {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  box-sizing: border-box;
+
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  /* Subtle top glow accent */
+  box-shadow:
+    0 0 0 1px transparent,
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Heading                                                              */
+/* ------------------------------------------------------------------ */
+.todo-form__heading {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--text-h) !important;
+  margin: 0 !important;
+  letter-spacing: -0.2px !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* API error banner                                                     */
+/* ------------------------------------------------------------------ */
+.todo-form__api-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #dc2626;
+  font-size: 13.5px;
+  line-height: 1.5;
+  animation: shake 0.35s ease;
+}
+
+.todo-form__api-error-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-5px); }
+  40%       { transform: translateX(5px); }
+  60%       { transform: translateX(-3px); }
+  80%       { transform: translateX(3px); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Fields                                                               */
+/* ------------------------------------------------------------------ */
+.todo-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.todo-form__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-h);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.todo-form__required {
+  color: #ef4444;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.todo-form__optional {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text);
+  opacity: 0.7;
+}
+
+/* ------------------------------------------------------------------ */
+/* Input & Textarea                                                     */
+/* ------------------------------------------------------------------ */
+.todo-form__input,
+.todo-form__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  resize: vertical;
+}
+
+.todo-form__input:focus,
+.todo-form__textarea:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.todo-form__input::placeholder,
+.todo-form__textarea::placeholder {
+  color: var(--text);
+  opacity: 0.45;
+}
+
+.todo-form__input:disabled,
+.todo-form__textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Error state */
+.todo-form__input--error {
+  border-color: rgba(239, 68, 68, 0.6);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+/* ------------------------------------------------------------------ */
+/* Inline validation messages                                           */
+/* ------------------------------------------------------------------ */
+.todo-form__field-error {
+  font-size: 12px;
+  color: #dc2626;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: fade-in-down 0.2s ease;
+}
+
+.todo-form__char-count {
+  font-size: 11px;
+  color: var(--text);
+  opacity: 0.55;
+  margin: 0;
+  text-align: right;
+}
+
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Submit button                                                        */
+/* ------------------------------------------------------------------ */
+.todo-form__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: opacity 0.2s ease, transform 0.15s ease, filter 0.2s ease;
+  min-width: 148px;
+}
+
+.todo-form__submit:hover:not(:disabled) {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+.todo-form__submit:active:not(:disabled) {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
+
+.todo-form__submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Loading spinner (inside button)                                      */
+/* ------------------------------------------------------------------ */
+.todo-form__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                           */
+/* ------------------------------------------------------------------ */
+@media (max-width: 600px) {
+  .todo-form {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+
+  .todo-form__submit {
+    width: 100%;
+  }
+}
