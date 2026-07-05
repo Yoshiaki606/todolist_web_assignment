@@ -12,14 +12,22 @@
  *   keyword — tìm kiếm theo title (case-insensitive)
  *   page    — số trang, mặc định 1
  *   limit   — số item mỗi trang, mặc định 20
+ *   sortBy  — trường sắp xếp ('created_at' | 'title' | 'status' | 'updated_at')
+ *   sortOrder — chiều sắp xếp ('asc' | 'desc')
  *
  * Body cho POST (JSON):
  *   title       {string} bắt buộc, tối đa 200 ký tự
  *   description {string} tùy chọn
+ *   due_at      {string} tùy chọn, định dạng ISO date
  */
 
-import { getSupabaseClient } from '../_supabaseClient.js';
-import { validateDueAt } from '../_validators.js';
+import { getSupabaseClient } from '../_supabase.js';
+import { sendJSON }          from '../_helpers.js';
+import {
+  validateTitle,
+  validateDescription,
+  validateDueAt,
+} from '../_validators.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -27,18 +35,13 @@ import { validateDueAt } from '../_validators.js';
 const DEFAULT_PAGE  = 1;
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT     = 100;
-const MAX_TITLE_LEN = 200;
+
+const ALLOWED_SORT_BY    = ['created_at', 'title', 'status', 'updated_at'];
+const ALLOWED_SORT_ORDER = ['asc', 'desc'];
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-/**
- * Gửi JSON response với status code cho trước.
- */
-function sendJSON(res, statusCode, body) {
-  res.status(statusCode).json(body);
-}
 
 /**
  * Parse và validate các query params phân trang.
@@ -59,28 +62,15 @@ function parsePagination(query) {
 // ---------------------------------------------------------------------------
 
 async function handleGet(req, res) {
-  console.log(`[API handleGet] Getting supabase client`);
   const supabase = getSupabaseClient();
-  console.log(`[API handleGet] Supabase client obtained`);
-  
   const { status, keyword, sortBy, sortOrder } = req.query;
-  const { limit, offset }   = parsePagination(req.query);
+  const { limit, offset } = parsePagination(req.query);
 
-  // Validate and resolve sorting parameters
-  let activeSortBy = 'created_at';
-  let activeSortOrder = 'desc';
-  const allowedSortBy = ['created_at', 'title', 'status', 'updated_at'];
-  const allowedSortOrder = ['asc', 'desc'];
-
-  if (sortBy && allowedSortBy.includes(sortBy)) {
-    activeSortBy = sortBy;
-  }
-  if (sortOrder && allowedSortOrder.includes(sortOrder)) {
-    activeSortOrder = sortOrder;
-  }
+  // Validate và resolve sorting parameters
+  const activeSortBy    = ALLOWED_SORT_BY.includes(sortBy)       ? sortBy    : 'created_at';
+  const activeSortOrder = ALLOWED_SORT_ORDER.includes(sortOrder) ? sortOrder : 'desc';
 
   // Bắt đầu xây query — select all, đếm tổng để trả về total
-  console.log(`[API handleGet] Preparing query with status=${status}, keyword=${keyword}, sortBy=${activeSortBy}, sortOrder=${activeSortOrder}`);
   let query = supabase
     .from('todos')
     .select('*', { count: 'exact' });
@@ -103,7 +93,7 @@ async function handleGet(req, res) {
   // Sắp xếp và phân trang
   query = query
     .order(activeSortBy, { ascending: activeSortOrder === 'asc' })
-    // Secondary sort to ensure consistent order
+    // Secondary sort để đảm bảo thứ tự nhất quán khi giá trị bằng nhau
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -124,30 +114,16 @@ async function handleGet(req, res) {
 async function handlePost(req, res) {
   const { title, description, due_at } = req.body ?? {};
 
-  // --- Validation ---
+  // --- Validation — dùng các hàm tái sử dụng từ _validators.js ---
 
-  // title bắt buộc và không được rỗng / toàn khoảng trắng
-  if (!title || typeof title !== 'string' || title.trim().length === 0) {
-    return sendJSON(res, 400, { error: "'title' là trường bắt buộc và không được để trống." });
-  }
+  const titleResult = validateTitle(title);
+  if (!titleResult.valid) return sendJSON(res, 400, { error: titleResult.error });
 
-  // title không vượt quá MAX_TITLE_LEN ký tự
-  if (title.trim().length > MAX_TITLE_LEN) {
-    return sendJSON(res, 400, {
-      error: `'title' không được vượt quá ${MAX_TITLE_LEN} ký tự.`,
-    });
-  }
+  const descResult = validateDescription(description);
+  if (!descResult.valid) return sendJSON(res, 400, { error: descResult.error });
 
-  // description phải là string nếu có
-  if (description !== undefined && description !== null && typeof description !== 'string') {
-    return sendJSON(res, 400, { error: "'description' phải là chuỗi ký tự." });
-  }
-
-  // due_at phải hợp lệ nếu có
-  const dueAtValidation = validateDueAt(due_at);
-  if (!dueAtValidation.valid) {
-    return sendJSON(res, 400, { error: dueAtValidation.error });
-  }
+  const dueAtResult = validateDueAt(due_at);
+  if (!dueAtResult.valid) return sendJSON(res, 400, { error: dueAtResult.error });
 
   // --- Insert vào Supabase ---
   const supabase = getSupabaseClient();
@@ -162,7 +138,7 @@ async function handlePost(req, res) {
         // status mặc định 'pending' đã được set ở DB level
       },
     ])
-    .select()  // trả về row vừa insert
+    .select()   // trả về row vừa insert
     .single();
 
   if (error) {
@@ -178,24 +154,15 @@ async function handlePost(req, res) {
 // ---------------------------------------------------------------------------
 
 export default async function handler(req, res) {
-  console.log(`[API] Received request: ${req.method} ${req.url}`);
   try {
-    // Chỉ cho phép GET và POST
-    if (req.method === 'GET') {
-      console.log(`[API] Routing to handleGet`);
-      return await handleGet(req, res);
-    }
-
-    if (req.method === 'POST') {
-      console.log(`[API] Routing to handlePost`);
-      return await handlePost(req, res);
-    }
+    if (req.method === 'GET')  return await handleGet(req, res);
+    if (req.method === 'POST') return await handlePost(req, res);
 
     // Mọi method khác → 405
     res.setHeader('Allow', 'GET, POST');
     return sendJSON(res, 405, { error: 'Method not allowed' });
   } catch (err) {
-    console.error(`[API /api/todos] Unhandled error:`, err);
+    console.error('[API /api/todos] Unhandled error:', err);
     return sendJSON(res, 500, { error: err.message || 'Lỗi hệ thống nội bộ.' });
   }
 }

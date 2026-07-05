@@ -11,32 +11,9 @@ import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { loadEnvLocal }  from './_loadEnv.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// ---------------------------------------------------------------------------
-// Load .env.local thủ công (Node.js không tự load .env.local)
-// ---------------------------------------------------------------------------
-function loadEnvLocal() {
-  const envPath = resolve(__dirname, '../.env.local');
-  try {
-    const content = readFileSync(envPath, 'utf-8');
-    for (const line of content.split('\n')) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) continue;
-      const eqIdx = trimmed.indexOf('=');
-      if (eqIdx === -1) continue;
-      const key   = trimmed.slice(0, eqIdx).trim();
-      const value = trimmed.slice(eqIdx + 1).trim();
-      if (key && value && !process.env[key]) {
-        process.env[key] = value;
-      }
-    }
-  } catch {
-    console.error('❌ Không tìm thấy file .env.local');
-    process.exit(1);
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Helpers

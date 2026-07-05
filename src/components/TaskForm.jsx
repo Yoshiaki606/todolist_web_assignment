@@ -1,15 +1,15 @@
 /**
- * src/components/TodoForm.jsx
+ * src/components/TaskForm.jsx
  *
  * Form tạo công việc mới.
- * Gọi addTodo() từ useTodos (được truyền qua props từ App.jsx).
+ * Gọi addTodo() từ useTasks (trọng qua props từ App.jsx).
  *
  * Props:
- *   addTodo {Function} — (payload) => Promise<Todo>; throws nếu lỗi
+ *   addTodo {Function} — (payload) => Promise<Task>; throws nếu lỗi
  */
 
 import { useState } from 'react';
-import './TodoForm.css';
+import './TaskForm.css';
 
 const MAX_TITLE_LEN = 200; // khớp với rule validate phía server
 

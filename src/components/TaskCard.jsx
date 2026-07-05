@@ -1,20 +1,21 @@
 /**
- * src/components/TodoItem.jsx
+ * src/components/TaskCard.jsx
  *
- * Hiển thị một công việc, hỗ trợ:
- *   - Xem (display mode)
+ * Hiển thị một công việc dưới dạng card, hỗ trợ:
+ *   - Xem (view mode)
  *   - Toggle trạng thái pending ↔ completed (optimistic, với rollback)
  *   - Sửa inline (edit mode) — không tải lại trang
- *   - Xóa có xác nhận (confirm modal đơn giản)
+ *   - Xóa có xác nhận (confirm dialog)
  *
  * Props:
- *   todo     {Object}   — object todo từ API
- *   onUpdate {Function} — (id, payload) => Promise<Todo>; throws nếu lỗi
+ *   todo     {Object}   — object task từ API
+ *   onUpdate {Function} — (id, payload) => Promise<Task>; throws nếu lỗi
  *   onDelete {Function} — (id) => Promise<void>;          throws nếu lỗi
  */
 
 import { useState, useRef, useEffect } from 'react';
-import './TodoItem.css';
+import ConfirmDialog from './ConfirmDialog.jsx';
+import './TaskCard.css';
 
 const MAX_TITLE_LEN = 200; // khớp với server-side rule
 
@@ -38,38 +39,7 @@ function formatDateTimeLocal(isoString) {
   return new Date(date.getTime() - tzoffset).toISOString().slice(0, 16);
 }
 
-/* ------------------------------------------------------------------ */
-/* Confirm modal đơn giản — không dùng window.confirm                  */
-/* ------------------------------------------------------------------ */
-function ConfirmDialog({ onConfirm, onCancel }) {
-  return (
-    <div className="todo-item__confirm" role="dialog" aria-modal="true" aria-label="Xác nhận xóa">
-      <p className="todo-item__confirm-text">Bạn chắc chắn muốn xóa công việc này?</p>
-      <div className="todo-item__confirm-actions">
-        <button
-          id="btn-confirm-cancel"
-          className="todo-item__btn todo-item__btn--ghost"
-          onClick={onCancel}
-          autoFocus
-        >
-          Hủy
-        </button>
-        <button
-          id="btn-confirm-delete"
-          className="todo-item__btn todo-item__btn--danger"
-          onClick={onConfirm}
-        >
-          Xóa
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Main component                                                       */
-/* ------------------------------------------------------------------ */
-export default function TodoItem({ todo, onUpdate, onDelete }) {
+export default function TaskCard({ todo, onUpdate, onDelete }) {
   const isCompleted = todo.status === 'completed';
   const isOverdue = !isCompleted && todo.due_at && new Date(todo.due_at) < new Date();
 

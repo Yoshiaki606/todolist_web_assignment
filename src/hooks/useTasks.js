@@ -1,32 +1,35 @@
 /**
- * src/hooks/useTodos.js
+ * src/hooks/useTasks.js
  *
- * Custom hook quản lý state và data-fetching cho danh sách todos.
+ * Custom hook quản lý state và data-fetching cho danh sách tasks.
  * Giao tiếp với GET, POST, PATCH, DELETE /api/todos.
  */
 
 import { useState, useCallback, useRef } from 'react';
 
 /**
- * @typedef {Object} Todo
+ * @typedef {Object} Task
  * @property {string}  id
  * @property {string}  title
  * @property {string|null} description
  * @property {'pending'|'completed'} status
+ * @property {string|null} due_at
  * @property {string}  created_at
  * @property {string}  updated_at
  */
 
 /**
  * @typedef {Object} FetchParams
- * @property {string} [status]   - Lọc theo trạng thái ('pending' | 'completed')
- * @property {string} [keyword]  - Tìm kiếm theo title
- * @property {number} [page]     - Số trang (mặc định 1)
- * @property {number} [limit]    - Số item mỗi trang (mặc định 20)
+ * @property {string} [status]    - Lọc theo trạng thái ('pending' | 'completed')
+ * @property {string} [keyword]   - Tìm kiếm theo title
+ * @property {number} [page]      - Số trang (mặc định 1)
+ * @property {number} [limit]     - Số item mỗi trang (mặc định 20)
+ * @property {string} [sortBy]    - Trường sắp xếp
+ * @property {string} [sortOrder] - Chiều sắp xếp ('asc' | 'desc')
  */
 
-export function useTodos() {
-  /** @type {[Todo[], React.Dispatch<React.SetStateAction<Todo[]>>]} */
+export function useTasks() {
+  /** @type {[Task[], React.Dispatch<React.SetStateAction<Task[]>>]} */
   const [todos, setTodos]     = useState([]);
   const [total, setTotal]     = useState(0);
   const [loading, setLoading] = useState(false);
@@ -142,13 +145,14 @@ export function useTodos() {
    * @returns {Promise<Todo>} Todo sau khi cập nhật
    */
   const updateTodo = useCallback(async (id, payload) => {
-    // Lưu lại state cũ để rollback nếu cần
-    const previousTodos = todos;
+    // Capture state hiện tại bên trong functional updater — không cần todos trong deps
+    let previousTodos;
 
     // Optimistic update: cập nhật UI ngay trước khi API phản hồi
-    setTodos((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...payload } : t))
-    );
+    setTodos((prev) => {
+      previousTodos = prev;
+      return prev.map((t) => (t.id === id ? { ...t, ...payload } : t));
+    });
 
     const response = await fetch(`/api/todos/${id}`, {
       method:  'PATCH',
@@ -175,7 +179,7 @@ export function useTodos() {
     );
 
     return updated;
-  }, [todos]);
+  }, []); // deps rỗng: state được capture qua functional updater, không phải closure
 
   // ---------------------------------------------------------------------------
   // [THÊM MỚI] deleteTodo — gọi DELETE /api/todos/:id
@@ -190,12 +194,19 @@ export function useTodos() {
    * @returns {Promise<void>}
    */
   const deleteTodo = useCallback(async (id) => {
-    const previousTodos = todos;
-    const previousTotal = total;
+    // Capture state hiện tại bên trong functional updater — không cần todos/total trong deps
+    let previousTodos;
+    let previousTotal;
 
     // Optimistic: xóa khỏi UI ngay
-    setTodos((prev) => prev.filter((t) => t.id !== id));
-    setTotal((prev) => Math.max(0, prev - 1));
+    setTodos((prev) => {
+      previousTodos = prev;
+      return prev.filter((t) => t.id !== id);
+    });
+    setTotal((prev) => {
+      previousTotal = prev;
+      return Math.max(0, prev - 1);
+    });
 
     const response = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
 
@@ -210,7 +221,7 @@ export function useTodos() {
       } catch { /* ignore */ }
       throw new Error(message);
     }
-  }, [todos, total]);
+  }, []); // deps rỗng: state được capture qua functional updater, không phải closure
 
   // Không có auto-fetch ở đây.
   // App.jsx kiểm soát hoàn toàn việc fetch qua filter useEffect.

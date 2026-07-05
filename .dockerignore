@@ -1,0 +1,29 @@
+# Dependencies & build outputs
+node_modules
+dist
+dist-ssr
+
+# Local environment configs
+.env
+.env.*
+.env.local
+.env.*.local
+
+# Git & Tooling logs
+.git
+.gitignore
+.vercel
+logs
+*.log
+npm-debug.log*
+
+# Docker files
+.dockerignore
+Dockerfile
+
+# Development docs & assets
+README.md
+scripts/
+supabase/
+skills/
+.oxlintrc.json

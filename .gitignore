@@ -1,3 +1,19 @@
+# Build output
+dist
+dist-ssr
+
+# Dependencies
+node_modules
+
+# Environment variables — KHÔNG commit lên Git!
+.env
+.env.*
+.env.local
+.env.*.local
+
+# Vercel
+.vercel
+
 # Logs
 logs
 *.log
@@ -7,16 +23,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Environment variables - KHÔNG commit lên Git!
-.env.local
-.env.*.local
-
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -26,8 +33,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-.vercel
 
 # Thư mục nội bộ IDE / tooling
 skills/

@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useTodos } from './hooks/useTodos.js';
+import { useTasks }   from './hooks/useTasks.js';
 import FilterBar from './components/FilterBar.jsx';
-import TodoForm from './components/TodoForm.jsx';
-import TodoList from './components/TodoList.jsx';
+import TaskForm  from './components/TaskForm.jsx';
+import TaskList  from './components/TaskList.jsx';
 import './App.css';
 
 const DEBOUNCE_MS = 300;
 
 export default function App() {
-  const { todos, total, loading, error, fetchTodos, addTodo, updateTodo, deleteTodo } = useTodos();
+  const { todos, total, loading, error, fetchTodos, addTodo, updateTodo, deleteTodo } = useTasks();
 
   // --- Filter and Pagination state ---
   const [activeStatus, setActiveStatus] = useState('all');
@@ -95,7 +95,7 @@ export default function App() {
           <h1 className="app-title-hidden">Task Manager</h1>
         </header>
 
-        <TodoForm addTodo={addTodo} />
+        <TaskForm addTodo={addTodo} />
 
         <FilterBar
           activeStatus={activeStatus}
@@ -109,7 +109,7 @@ export default function App() {
           loading={loading}
         />
 
-        <TodoList
+        <TaskList
           todos={todos}
           total={total}
           loading={loading}

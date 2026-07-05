@@ -11,7 +11,8 @@
  *   id  — UUID của todo cần thao tác
  */
 
-import { getSupabaseClient } from '../_supabaseClient.js';
+import { getSupabaseClient } from '../_supabase.js';
+import { sendJSON }          from '../_helpers.js';
 import {
   isValidUUID,
   validateTitle,
@@ -23,10 +24,6 @@ import {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function sendJSON(res, statusCode, body) {
-  res.status(statusCode).json(body);
-}
 
 /**
  * Kiểm tra todo có tồn tại trong DB không.
@@ -95,7 +92,7 @@ async function handleUpdate(req, res, id) {
 
   // --- Kiểm tra record tồn tại ---
   const supabase = getSupabaseClient();
-  const { todo, notFound, dbError: findError } = await findTodoById(supabase, id);
+  const { todo: _todo, notFound, dbError: findError } = await findTodoById(supabase, id);
 
   if (findError) {
     console.error('[PUT|PATCH /api/todos/:id] find error:', findError);

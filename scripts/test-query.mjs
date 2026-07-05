@@ -2,30 +2,11 @@
  * scripts/test-query.mjs
  *
  * Test the exact Supabase query used in api/todos/index.js
+ * Chạy: node scripts/test-query.mjs
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { readFileSync } from 'fs';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-function loadEnvLocal() {
-  const envPath = resolve(__dirname, '../.env.local');
-  const content = readFileSync(envPath, 'utf-8');
-  for (const line of content.split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eqIdx = trimmed.indexOf('=');
-    if (eqIdx === -1) continue;
-    const key   = trimmed.slice(0, eqIdx).trim();
-    const value = trimmed.slice(eqIdx + 1).trim();
-    if (key && value && !process.env[key]) {
-      process.env[key] = value;
-    }
-  }
-}
+import { loadEnvLocal }  from './_loadEnv.mjs';
 
 async function main() {
   loadEnvLocal();

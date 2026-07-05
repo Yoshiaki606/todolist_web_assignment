@@ -1,5 +1,5 @@
 /**
- * api/_supabaseClient.js
+ * api/_supabase.js
  *
  * Module dùng chung để khởi tạo Supabase Admin Client phía server.
  * Chỉ dùng trong các Vercel Serverless Functions (thư mục /api).
@@ -16,23 +16,21 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
- * Tìm file .env.local bằng cách đi ngược lên các thư mục cha
+ * Tìm file .env.local bằng cách đi ngược lên các thư mục cha.
+ * @returns {string|null} Đường dẫn tuyệt đối đến .env.local, hoặc null nếu không tìm thấy
  */
 function findEnvLocal() {
   const startPaths = [];
   try {
     startPaths.push(dirname(fileURLToPath(import.meta.url)));
-  } catch {}
+  } catch { /* fallback to cwd */ }
   startPaths.push(process.cwd());
-  console.log(`[SupabaseClient] findEnvLocal startPaths:`, startPaths);
 
   for (const startPath of startPaths) {
     let current = startPath;
     for (let i = 0; i < 5; i++) {
       const candidate = resolve(current, '.env.local');
-      console.log(`[SupabaseClient] Checking candidate path: ${candidate}`);
       if (existsSync(candidate)) {
-        console.log(`[SupabaseClient] Found .env.local at: ${candidate}`);
         return candidate;
       }
       const parent = dirname(current);
@@ -40,7 +38,8 @@ function findEnvLocal() {
       current = parent;
     }
   }
-  console.warn(`[SupabaseClient] .env.local not found in starting paths`);
+
+  console.warn('[SupabaseClient] .env.local not found — set env vars manually or via Vercel dashboard.');
   return null;
 }
 
@@ -49,15 +48,13 @@ function findEnvLocal() {
  * nếu Vercel CLI chưa load được (do chưa link project, offline, v.v.)
  */
 function loadLocalEnv() {
-  if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.log(`[SupabaseClient] Env vars already present`);
-    return;
-  }
-  console.log(`[SupabaseClient] Loading local env vars...`);
+  // Nếu biến môi trường đã có sẵn (Vercel production / Vercel CLI) thì bỏ qua
+  if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) return;
+
   try {
     const envPath = findEnvLocal();
     if (!envPath) return;
-    
+
     const content = readFileSync(envPath, 'utf-8');
     for (const line of content.split('\n')) {
       const trimmed = line.trim();
@@ -65,14 +62,20 @@ function loadLocalEnv() {
       const eqIdx = trimmed.indexOf('=');
       if (eqIdx === -1) continue;
       const key   = trimmed.slice(0, eqIdx).trim();
-      const value = trimmed.slice(eqIdx + 1).trim();
+      let value   = trimmed.slice(eqIdx + 1).trim();
+
+      // Loại bỏ dấu nháy kép hoặc nháy đơn bọc ngoài giá trị nếu có
+      if ((value.startsWith('"') && value.endsWith('"')) || 
+          (value.startsWith("'") && value.endsWith("'"))) {
+        value = value.slice(1, -1);
+      }
+
       if (key && value && !process.env[key]) {
         process.env[key] = value;
       }
     }
-    console.log(`[SupabaseClient] env.local loaded successfully`);
   } catch (err) {
-    console.error(`[SupabaseClient] Error loading env.local:`, err);
+    console.error('[SupabaseClient] Error loading .env.local:', err.message);
   }
 }
 
@@ -84,11 +87,10 @@ function loadLocalEnv() {
  * @throws {Error} Nếu biến môi trường chưa được cấu hình
  */
 export function getSupabaseClient() {
-  console.log(`[SupabaseClient] getSupabaseClient called`);
   loadLocalEnv();
-  const supabaseUrl = process.env.SUPABASE_URL;
+
+  const supabaseUrl            = process.env.SUPABASE_URL;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  console.log(`[SupabaseClient] URL present: ${!!supabaseUrl}, Key present: ${!!supabaseServiceRoleKey}`);
 
   if (!supabaseUrl) {
     throw new Error(

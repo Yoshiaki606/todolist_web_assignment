@@ -1,4 +1,4 @@
-/* src/components/TodoList.css */
+/* src/components/TaskList.css */
 
 .todo-list {
   width: 100%;
@@ -223,6 +223,20 @@
   opacity: 0.4;
   cursor: not-allowed;
   transform: none !important;
+}
+
+/* Ellipsis "…" giữa các nút trang */
+.todo-list__page-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  font-size: 15px;
+  color: var(--text);
+  opacity: 0.5;
+  user-select: none;
+  letter-spacing: 0.05em;
 }
 
 /* Responsive adjustments */

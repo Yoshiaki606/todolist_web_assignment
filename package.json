@@ -1,16 +1,19 @@
 {
-  "name": "my-todo-app",
+  "name": "taskflow",
+  "description": "Ứng dụng quản lý công việc — React 19 + Vite + Supabase + Vercel",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "preview": "vite preview",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "check": "oxlint && vite build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.0",
+    "express": "^5.2.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
