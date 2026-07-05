@@ -158,23 +158,28 @@ async function handleDelete(req, res, id) {
 // ---------------------------------------------------------------------------
 
 export default async function handler(req, res) {
-  // Lấy id từ URL params (Vercel inject vào req.query)
-  const { id } = req.query;
+  try {
+    // Lấy id từ URL params (Vercel inject vào req.query)
+    const { id } = req.query;
 
-  // --- Validate UUID ---
-  if (!isValidUUID(id)) {
-    return sendJSON(res, 400, { error: "'id' không hợp lệ. Phải là UUID đúng định dạng." });
+    // --- Validate UUID ---
+    if (!isValidUUID(id)) {
+      return sendJSON(res, 400, { error: "'id' không hợp lệ. Phải là UUID đúng định dạng." });
+    }
+
+    if (req.method === 'PUT' || req.method === 'PATCH') {
+      return await handleUpdate(req, res, id);
+    }
+
+    if (req.method === 'DELETE') {
+      return await handleDelete(req, res, id);
+    }
+
+    // Mọi method khác → 405
+    res.setHeader('Allow', 'PUT, PATCH, DELETE');
+    return sendJSON(res, 405, { error: 'Method not allowed' });
+  } catch (err) {
+    console.error(`[API /api/todos/[id]] Unhandled error:`, err);
+    return sendJSON(res, 500, { error: err.message || 'Lỗi hệ thống nội bộ.' });
   }
-
-  if (req.method === 'PUT' || req.method === 'PATCH') {
-    return handleUpdate(req, res, id);
-  }
-
-  if (req.method === 'DELETE') {
-    return handleDelete(req, res, id);
-  }
-
-  // Mọi method khác → 405
-  res.setHeader('Allow', 'PUT, PATCH, DELETE');
-  return sendJSON(res, 405, { error: 'Method not allowed' });
 }

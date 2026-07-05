@@ -148,16 +148,21 @@ async function handlePost(req, res) {
 // ---------------------------------------------------------------------------
 
 export default async function handler(req, res) {
-  // Chỉ cho phép GET và POST
-  if (req.method === 'GET') {
-    return handleGet(req, res);
-  }
+  try {
+    // Chỉ cho phép GET và POST
+    if (req.method === 'GET') {
+      return await handleGet(req, res);
+    }
 
-  if (req.method === 'POST') {
-    return handlePost(req, res);
-  }
+    if (req.method === 'POST') {
+      return await handlePost(req, res);
+    }
 
-  // Mọi method khác → 405
-  res.setHeader('Allow', 'GET, POST');
-  return sendJSON(res, 405, { error: 'Method not allowed' });
+    // Mọi method khác → 405
+    res.setHeader('Allow', 'GET, POST');
+    return sendJSON(res, 405, { error: 'Method not allowed' });
+  } catch (err) {
+    console.error(`[API /api/todos] Unhandled error:`, err);
+    return sendJSON(res, 500, { error: err.message || 'Lỗi hệ thống nội bộ.' });
+  }
 }

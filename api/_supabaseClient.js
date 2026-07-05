@@ -24,7 +24,7 @@ function loadLocalEnv() {
     return;
   }
   try {
-    const envPath = resolve(__dirname, '../.env.local');
+    const envPath = resolve(process.cwd(), '.env.local');
     const content = readFileSync(envPath, 'utf-8');
     for (const line of content.split('\n')) {
       const trimmed = line.trim();
