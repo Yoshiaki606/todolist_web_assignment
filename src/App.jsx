@@ -16,7 +16,7 @@ export default function App() {
   const [page, setPage]                 = useState(1);
   const [sortBy, setSortBy]             = useState('created_at');
   const [sortOrder, setSortOrder]       = useState('desc');
-  const limit = 10;
+  const limit = 3;
 
   const hasActiveFilters = activeStatus !== 'all' || keyword.trim().length > 0;
 
