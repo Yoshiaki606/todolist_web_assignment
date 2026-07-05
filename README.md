@@ -2,7 +2,7 @@
 
 Ứng dụng quản lý công việc hiện đại, trực quan, bảo mật cao. Được xây dựng trên nền tảng **React 19 (Vite) + Vercel Serverless Functions + Supabase (PostgreSQL)**.
 
-🌐 **Link chạy thử trên Web (Production):** [https://todolist-web-assignment.vercel.app/](https://todolist-web-assignment.vercel.app/)
+🌐 **Link chạy thử trên Web (Production):** [https://my-todo-app-omega-lake.vercel.app/](https://my-todo-app-omega-lake.vercel.app/)
 
 ---
 
