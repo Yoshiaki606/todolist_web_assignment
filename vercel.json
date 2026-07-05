@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "devCommand": "vite",
   "builds": [
     {
       "src": "package.json",
