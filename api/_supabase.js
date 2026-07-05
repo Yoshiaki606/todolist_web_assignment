@@ -89,8 +89,33 @@ function loadLocalEnv() {
 export function getSupabaseClient() {
   loadLocalEnv();
 
-  const supabaseUrl            = process.env.SUPABASE_URL;
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  let supabaseUrl            = process.env.SUPABASE_URL;
+  let supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  // --- Làm sạch biến môi trường (Sanitization) ---
+  if (supabaseUrl) {
+    supabaseUrl = supabaseUrl.trim().replace(/^['"]|['"]$/g, '');
+    const firstNewline = supabaseUrl.indexOf('\n');
+    if (firstNewline !== -1) {
+      supabaseUrl = supabaseUrl.slice(0, firstNewline).trim();
+    }
+    const hashIdx = supabaseUrl.indexOf('#');
+    if (hashIdx !== -1) {
+      supabaseUrl = supabaseUrl.slice(0, hashIdx).trim();
+    }
+  }
+
+  if (supabaseServiceRoleKey) {
+    supabaseServiceRoleKey = supabaseServiceRoleKey.trim().replace(/^['"]|['"]$/g, '');
+    const firstNewline = supabaseServiceRoleKey.indexOf('\n');
+    if (firstNewline !== -1) {
+      supabaseServiceRoleKey = supabaseServiceRoleKey.slice(0, firstNewline).trim();
+    }
+    const hashIdx = supabaseServiceRoleKey.indexOf('#');
+    if (hashIdx !== -1) {
+      supabaseServiceRoleKey = supabaseServiceRoleKey.slice(0, hashIdx).trim();
+    }
+  }
 
   if (!supabaseUrl) {
     throw new Error(
